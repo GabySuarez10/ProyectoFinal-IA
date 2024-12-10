@@ -94,21 +94,3 @@ class Piece:
             tablero[enemigo.posY][enemigo.posX] = enemigo
 
         return tablero
-    # Función para calcular las posiciones válidas de una pieza
-def calcular_posiciones_movimiento(tablero, pieza):
-    posiciones_validas = []
-    
-    # Este es un ejemplo para el conejo (deberías agregar las reglas de movimiento correspondientes a tus piezas)
-    if pieza.animal == "conejo":
-        x, y = pieza.posX, pieza.posY
-        # El conejo puede moverse a una posición horizontal o verticalmente adyacente
-        if x + 1 < 8 and tablero[y][x + 1] == " ":
-            posiciones_validas.append((x + 1, y))
-        if x - 1 >= 0 and tablero[y][x - 1] == " ":
-            posiciones_validas.append((x - 1, y))
-        if y + 1 < 8 and tablero[y + 1][x] == " ":
-            posiciones_validas.append((x, y + 1))
-        if y - 1 >= 0 and tablero[y - 1][x] == " ":
-            posiciones_validas.append((x, y - 1))
-
-    return posiciones_validas
