@@ -13,6 +13,7 @@ VINOTINTO = (128, 0, 32)
 CAFE = (210, 180, 140)
 pos1 = None
 pos2 = None
+empujar_halar = False
 
 def obtener_posicion(pos1, pos2):
     pos1X = ""
@@ -31,6 +32,10 @@ def obtener_posicion(pos1, pos2):
     pos1 = None
     pos2 = None
     return (pos1X, pos1Y), (pos2X, pos2Y)
+
+def modificar_modo():
+    global empujar_halar
+    if empujar_halar == False: empujar_halar = True   
 
 # Inicializar pygame
 pygame.init()
@@ -87,16 +92,16 @@ imagenCabal = pygame.transform.scale(imagenCabal, (TAM_CELDA, TAM_CELDA))
 
 
 
-#Colocar piezas en el tablero fichas plateadas
+#Colocar piezas en el tablero fichas doradas
 
 y = 7
 for x in range(len(tablero2[y])):
     tablero2[y][x] = piece.Piece("conejo", 1, "dorado", x, y)
 tablero2[6][0] = piece.Piece("gato", 2, "dorado", 0, 6)      
 tablero2[6][7] = piece.Piece("gato", 2, "dorado", 7, 6) 
-tablero2[6][1] = piece.Piece("perro", 3, "dorado", 4, 1)     
+tablero2[6][1] = piece.Piece("perro", 3, "dorado", 1, 6)     
 tablero2[6][6] = piece.Piece("perro", 3, "dorado", 6, 6)
-tablero2[6][2] = piece.Piece("caballo", 4, "dorado", 6, 2)
+tablero2[6][2] = piece.Piece("caballo", 4, "dorado", 2, 6)
 tablero2[6][5] = piece.Piece("caballo", 4, "dorado", 5, 6)
 tablero2[6][3] = piece.Piece("camello", 5, "dorado", 3, 6) 
 tablero2[6][4] = piece.Piece("elefante", 6, "dorado", 4, 6)  
@@ -183,5 +188,4 @@ while True:
                         Pintar(tablero2)
                         pos1= None
                         pos2= None
-
-
+  
