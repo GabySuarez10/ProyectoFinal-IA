@@ -2,6 +2,10 @@ import pygame
 import sys
 import piece
 import reglas
+import os  
+
+os.chdir(os.path.dirname(__file__))
+
 
 # Configuración general
 ANCHO = 512
