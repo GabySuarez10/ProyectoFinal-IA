@@ -17,13 +17,15 @@ VINOTINTO = (128, 0, 32)
 CAFE = (210, 180, 140)
 pos1 = None
 pos2 = None
-empujar_halar = False
+pos3 = None
 
-def obtener_posicion(pos1, pos2):
+def obtener_posicion(pos1, pos2, pos3=[0,0]):
     pos1X = ""
     pos1Y = ""
     pos2X = ""
     pos2Y = ""
+    pos3X = ""
+    pos3Y = ""
   
    
     pos1X = int(pos1[0]/63)
@@ -33,13 +35,14 @@ def obtener_posicion(pos1, pos2):
     pos2X = int(pos2[0]/63)
     pos2Y = int(pos2[1]/63)
     print(f"Segundo clic en: {pos2}")
+    
+    pos3X = int(pos3[0]/63)
+    pos3Y = int(pos3[1]/63)
+    print(f"Primer clic en: {pos3}")
     pos1 = None
     pos2 = None
-    return (pos1X, pos1Y), (pos2X, pos2Y)
-
-def modificar_modo():
-    global empujar_halar
-    if empujar_halar == False: empujar_halar = True   
+    pos3 = None
+    return (pos1X, pos1Y), (pos2X, pos2Y), (pos3X, pos3Y)
 
 # Inicializar pygame
 pygame.init()
@@ -186,10 +189,38 @@ while True:
                         pos1 = event.pos
                     elif pos2 is None:  # Segundo clic
                         pos2 = event.pos
-                        posicion1, posicion2 = obtener_posicion(pos1, pos2)
+                        posicion1, posicion2, tempo = obtener_posicion(pos1, pos2)
                         print(f"Posiciones capturadas: {posicion1}, {posicion2}") 
                         tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
                         Pintar(tablero2)
                         pos1= None
                         pos2= None
-  
+        elif event.type == pygame.KEYDOWN:
+            if pygame.key.name (event.key) == "1":
+                if pos1 is None:  # Primer clic
+                        pos1 = pygame.mouse.get_pos()
+                elif pos2 is None:  # Segundo clic
+                    pos2 = pygame.mouse.get_pos()
+                elif pos3 is None:
+                    pos3 = pygame.mouse.get_pos()
+                    posicion1, posicion2, posicion3 = obtener_posicion(pos1, pos2, pos3)
+                    print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
+                    tablero2 = reglas.empujar_ficha(tablero2, posicion1, posicion2, posicion3)
+                    Pintar(tablero2)
+                    pos1= None
+                    pos2= None
+                    pos3= None
+            if pygame.key.name (event.key) == "2":
+                if pos1 is None:  # Primer clic
+                        pos1 = pygame.mouse.get_pos()
+                elif pos2 is None:  # Segundo clic
+                    pos2 = pygame.mouse.get_pos()
+                elif pos3 is None:
+                    pos3 = pygame.mouse.get_pos()
+                    posicion1, posicion2, posicion3 = obtener_posicion(pos1, pos2, pos3)
+                    print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
+                    tablero2 = reglas.halar_ficha(tablero2, posicion1, posicion2, posicion3)
+                    Pintar(tablero2)
+                    pos1= None
+                    pos2= None
+                    pos3= None

@@ -48,7 +48,7 @@ class Piece:
             if 0 <= x <= 7 and 0 <= y <= 7 and type(tablero[y][x]) is not str:
                 enemigo = tablero[y][x]
                 if enemigo.color != self.color and enemigo.peso < self.peso:
-                    listaEnemigosDisponibles.append(direccion)
+                    listaEnemigosDisponibles.append((x,y))
 
         return listaEnemigosDisponibles
 
@@ -62,7 +62,7 @@ class Piece:
             "izquierda": (enemigo.posX - 1, enemigo.posY)
         }
 
-        x, y = direcciones[direccion]
+        x, y = direccion
         if self._es_posicion_valida(x, y, tablero):
             # Mueve el enemigo y la pieza actual
             tablero[enemigo.posY][enemigo.posX] = " "
@@ -74,8 +74,8 @@ class Piece:
 
         return tablero
 
-    def Jalar(self, tablero, enemigo, direccion):
-        """Jala al enemigo hacia la posición de la pieza."""
+    def Halar(self, tablero, enemigo, direccion):
+        """Hala al enemigo hacia la posición de la pieza."""
         direcciones = {
             "arriba": (self.posX, self.posY - 1),
             "derecha": (self.posX + 1, self.posY),
@@ -83,7 +83,7 @@ class Piece:
             "izquierda": (self.posX - 1, self.posY)
         }
 
-        x, y = direcciones[direccion]
+        x, y = direccion
         if self._es_posicion_valida(x, y, tablero):
             # Mueve la pieza y el enemigo
             tablero[enemigo.posY][enemigo.posX] = " "
