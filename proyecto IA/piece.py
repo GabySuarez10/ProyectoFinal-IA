@@ -1,96 +1,95 @@
 class Piece:
-    def __init__(self, animal, peso, color, posX, posY):
+    def __init__(self,animal,peso, color, posX, posY):
         self.animal = animal
-        self.color = color
-        self.peso = peso
-        self.congelada = False
-        self.viva = True
-        self.posX = posX
-        self.posY = posY
-
-    def _es_posicion_valida(self, x, y, tablero):
-        """Verifica si la posición (x, y) es válida en el tablero."""
-        return 0 <= x <= 7 and 0 <= y <= 7 and type(tablero[y][x]) is str
+        self.color = color  # Color de la pieza (por ejemplo, "dorado" o "plateado")
+        self.posX = posX    # Posición X en el tablero
+        self.posY = posY    # Posición Y en el tablero
+        self.peso = peso    # Peso de la pieza (para evaluaciones de IA)
+        self.congelada = False  # Indica si la pieza está congelada
 
     def ObtenerPosicionesDisponibles(self, tablero):
-        """Retorna las direcciones disponibles para mover la ficha."""
-        posiciones = {
-            "arriba": (self.posX, self.posY - 1),
-            "derecha": (self.posX + 1, self.posY),
-            "abajo": (self.posX, self.posY + 1),
-            "izquierda": (self.posX - 1, self.posY)
-        }
+        posiciones_disponibles = []
+        movimientos_posibles = [
+            (self.posX, self.posY - 1),  # Arriba
+            (self.posX, self.posY + 1),  # Abajo
+            (self.posX - 1, self.posY),  # Izquierda
+            (self.posX + 1, self.posY),  # Derecha
+        ]
 
-        listaPosicionesDisponibles = []
+        for pos in movimientos_posibles:
+            x, y = pos
+            # Verificar si la posición está dentro de los límites del tablero
+            if 0 <= x < len(tablero[0]) and 0 <= y < len(tablero):
+                # Verificar si la posición está vacía
+                if tablero[y][x] == " ":
+                    posiciones_disponibles.append(pos)
 
-        for posicion, (x, y) in posiciones.items():
-            if self._es_posicion_valida(x, y, tablero):
-                if posicion == "arriba" and self.animal == "conejo" and self.color == "plateado":
-                    continue
-                if posicion == "abajo" and self.animal == "conejo" and self.color == "dorado":
-                    continue
-                listaPosicionesDisponibles.append((x,y))
-
-        return listaPosicionesDisponibles
+        return posiciones_disponibles
 
     def ObtenerEnemigos(self, tablero):
-        """Retorna las direcciones de enemigos de menor peso."""
-        posiciones = {
-            "arriba": (self.posX, self.posY - 1),
-            "derecha": (self.posX + 1, self.posY),
-            "abajo": (self.posX, self.posY + 1),
-            "izquierda": (self.posX - 1, self.posY)
-        }
+        """
+        Encuentra enemigos adyacentes a la posición actual.
+        """
+        enemigos = []
+        movimientos_posibles = [
+            (self.posX, self.posY - 1),  # Arriba
+            (self.posX, self.posY + 1),  # Abajo
+            (self.posX - 1, self.posY),  # Izquierda
+            (self.posX + 1, self.posY),  # Derecha
+        ]
 
-        listaEnemigosDisponibles = []
+        for pos in movimientos_posibles:
+            x, y = pos
+            if 0 <= x < len(tablero[0]) and 0 <= y < len(tablero):
+                ficha = tablero[y][x]
+                if isinstance(ficha, Piece) and ficha.color != self.color:
+                    enemigos.append(pos)
+        return enemigos
 
-        for direccion, (x, y) in posiciones.items():
-            if 0 <= x <= 7 and 0 <= y <= 7 and type(tablero[y][x]) is not str:
-                enemigo = tablero[y][x]
-                if enemigo.color != self.color and enemigo.peso < self.peso:
-                    listaEnemigosDisponibles.append((x,y))
-
-        return listaEnemigosDisponibles
-
-
-    def Empujar(self, tablero, enemigo, direccion):
-        """Empuja al enemigo hacia una de sus direcciones disponibles."""
-        direcciones = {
-            "arriba": (enemigo.posX, enemigo.posY - 1),
-            "derecha": (enemigo.posX + 1, enemigo.posY),
-            "abajo": (enemigo.posX, enemigo.posY + 1),
-            "izquierda": (enemigo.posX - 1, enemigo.posY)
-        }
-
-        x, y = direccion
-        if self._es_posicion_valida(x, y, tablero):
-            # Mueve el enemigo y la pieza actual
-            tablero[enemigo.posY][enemigo.posX] = " "
-            tablero[self.posY][self.posX] = " "
-            self.posX, self.posY = enemigo.posX, enemigo.posY
-            enemigo.posX, enemigo.posY = x, y
-            tablero[enemigo.posY][enemigo.posX] = enemigo
-            tablero[self.posY][self.posX] = self
-
+    def Empujar(self, tablero, enemigo, pos_resultado):
+        """
+        Implementación para empujar a un enemigo (personalizar según reglas del juego).
+        """
+        # Mueve al enemigo a la nueva posición y actualiza el tablero.
+        tablero[pos_resultado[1]][pos_resultado[0]] = enemigo
+        tablero[enemigo.posY][enemigo.posX] = " "
+        enemigo.posX, enemigo.posY = pos_resultado
         return tablero
 
-    def Halar(self, tablero, enemigo, direccion):
-        """Hala al enemigo hacia la posición de la pieza."""
-        direcciones = {
-            "arriba": (self.posX, self.posY - 1),
-            "derecha": (self.posX + 1, self.posY),
-            "abajo": (self.posX, self.posY + 1),
-            "izquierda": (self.posX - 1, self.posY)
-        }
-
-        x, y = direccion
-        if self._es_posicion_valida(x, y, tablero):
-            # Mueve la pieza y el enemigo
-            tablero[enemigo.posY][enemigo.posX] = " "
-            tablero[self.posY][self.posX] = " "
-            enemigo.posX, enemigo.posY = self.posX, self.posY
-            self.posX, self.posY = x, y
-            tablero[self.posY][self.posX] = self
-            tablero[enemigo.posY][enemigo.posX] = enemigo
-
+    def Halar(self, tablero, enemigo, pos_resultado):
+        """
+        Implementación para halar a un enemigo (personalizar según reglas del juego).
+        """
+        # Mueve al enemigo a la nueva posición y actualiza el tablero.
+        tablero[pos_resultado[1]][pos_resultado[0]] = enemigo
+        tablero[enemigo.posY][enemigo.posX] = " "
+        enemigo.posX, enemigo.posY = pos_resultado
         return tablero
+
+
+class Conejo(Piece):
+    def __init__(self, id, color, posX, posY):
+        # Llamar al constructor de la clase base (Piece) con los parámetros adecuados
+        super().__init__("conejo", id, color, posX, posY)
+    
+    def ObtenerPosicionesDisponibles(self, tablero):
+        """
+        Limita los movimientos del conejo a un paso en las direcciones cardinales.
+        """
+        posiciones_disponibles = []
+        movimientos_posibles = [
+            (self.posX, self.posY - 1),  # Arriba
+            (self.posX - 1, self.posY),  # Izquierda
+            (self.posX + 1, self.posY)   # Derecha
+        ]
+
+        for pos in movimientos_posibles:
+            x, y = pos
+            # Verificar si la posición está dentro de los límites del tablero
+            if 0 <= x < len(tablero[0]) and 0 <= y < len(tablero):
+                # Verificar si la posición está vacía
+                if tablero[y][x] == " ":
+                    posiciones_disponibles.append(pos)
+
+        return posiciones_disponibles
+

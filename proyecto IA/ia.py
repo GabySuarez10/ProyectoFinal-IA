@@ -1,5 +1,7 @@
 import reglas
 import piece
+from reglas import validar_movimiento
+
 
 def evaluar_tablero(tablero, color_jugador):
     """
@@ -21,20 +23,25 @@ def evaluar_tablero(tablero, color_jugador):
 
 def generar_movimientos(tablero, color_jugador):
     """
-    Genera todos los movimientos posibles para un jugador.
-    Retorna una lista de movimientos en forma de (pos_inicial, pos_final).
+    Genera todos los movimientos válidos para un jugador.
     """
     movimientos = []
 
-    for y in range(8):
-        for x in range(8):
+    for y in range(len(tablero)):
+        for x in range(len(tablero[y])):
             casilla = tablero[y][x]
             if isinstance(casilla, piece.Piece) and casilla.color == color_jugador:
                 posiciones_disponibles = casilla.ObtenerPosicionesDisponibles(tablero)
-                for pos_final in posiciones_disponibles:
+                # Filtrar movimientos inválidos según las reglas
+                posiciones_validas = [
+                    pos for pos in posiciones_disponibles if validar_movimiento(tablero, (x, y), pos)
+
+                ]
+                for pos_final in posiciones_validas:
                     movimientos.append(((x, y), pos_final))
 
     return movimientos
+
 
 def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
     """

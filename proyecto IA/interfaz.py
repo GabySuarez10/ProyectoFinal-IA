@@ -100,7 +100,7 @@ imagenCabal = pygame.transform.scale(imagenCabal, (TAM_CELDA, TAM_CELDA))
 # Colocar piezas en el tablero fichas doradas
 y = 7
 for x in range(len(tablero2[y])):
-    tablero2[y][x] = piece.Piece("conejo", 1, "dorado", x, y)
+    tablero2[y][x] =  piece.Conejo(1, "dorado", x, y)
 tablero2[6][0] = piece.Piece("gato", 2, "dorado", 0, 6)      
 tablero2[6][7] = piece.Piece("gato", 2, "dorado", 7, 6) 
 tablero2[6][1] = piece.Piece("perro", 3, "dorado", 1, 6)     
@@ -176,12 +176,14 @@ es_turno_jugador = True
 
 # Bucle principal
 Pintar(tablero2)
+movimientos_restantes = 4  # Máximo de movimientos por turno
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        
+
         if es_turno_jugador:
             # Turno del jugador
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -190,22 +192,37 @@ while True:
                         pos1 = event.pos
                     elif pos2 is None:  # Segundo clic
                         pos2 = event.pos
-                        posicion1, posicion2, tempo = obtener_posicion(pos1, pos2)
-                        print(f"Posiciones capturadas: {posicion1}, {posicion2}") 
+                        posicion1, posicion2, _ = obtener_posicion(pos1, pos2)
+
+                        # Intentar mover la pieza
                         tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
                         Pintar(tablero2)
+
+                        # Reducir movimientos restantes
+                        movimientos_restantes -= 1
                         pos1 = None
                         pos2 = None
-                        es_turno_jugador = False  # Cambia el turno a la IA
+
+                        # Verificar si el jugador ha agotado sus movimientos
+                        if movimientos_restantes == 0:
+                            print("Movimientos agotados. Turno finalizado.")
+                            movimientos_restantes = 4
+                            es_turno_jugador = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  # Tecla Enter para finalizar el turno
+                    print("Turno finalizado manualmente.")
+                    movimientos_restantes = 4
+                    es_turno_jugador = False
         else:
             # Turno de la IA
             print("Es el turno de la IA...")
-            mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 3, "plateado")  # Asumiendo que la IA juega con el color plateado
-            if mejor_movimiento:
-                pos_inicial, pos_final = mejor_movimiento
-                tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
-                Pintar(tablero2)
-                es_turno_jugador = True  # Cambia el turno al jugador
-                print(f"Movimiento de la IA: {pos_inicial} -> {pos_final}")
+            for _ in range(4):  # La IA también tiene hasta 4 movimientos
+                mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 4, "plateado")
+                if mejor_movimiento:
+                    pos_inicial, pos_final = mejor_movimiento
+                    tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
+                    Pintar(tablero2)
+            es_turno_jugador = True
+
 
     reloj.tick(FPS)

@@ -56,65 +56,67 @@ def ObtenerCopiaTablero(estado):
     # Devuelve una copia profunda del tablero
     return [row[:] for row in estado]
 
-def mover_ficha(tablero, pos_inicial, pos_final):
-    # Realiza una copia del tablero
-    copia = ObtenerCopiaTablero(tablero)
-    
-    # Obtiene la ficha en la posición inicial
-    ficha = copia[pos_inicial[1]][pos_inicial[0]]  # Acceso directo a la posición inicial
-    
-    if isinstance(ficha, piece.Piece) and ficha.congelada == False:  # Verifica si hay una ficha en la posición inicial
-        # Obtiene las posiciones disponibles para moverse
-        lista_pos_dispo = ficha.ObtenerPosicionesDisponibles(copia)
-        
-        # Verifica si la posición final es válida
-        if pos_final in lista_pos_dispo:
-            # Actualiza el tablero: limpia la posición inicial
-            copia[pos_inicial[1]][pos_inicial[0]] = " "
-            
-            # Actualiza la posición de la ficha
-            ficha.posX = pos_final[0]
-            ficha.posY = pos_final[1]
-            
-            # Mueve la ficha a la posición final
-            copia[pos_final[1]][pos_final[0]] = ficha
+def validar_movimiento(tablero, pos_inicial, pos_final):
+    """
+    Valida si un movimiento es permitido según las reglas generales del juego.
+    """
+    if not (0 <= pos_inicial[0] < len(tablero[0]) and 0 <= pos_inicial[1] < len(tablero)):
+        return False  # Posición inicial fuera del tablero
 
-    trampas(copia)
-    Congelados(copia)
+    if not (0 <= pos_final[0] < len(tablero[0]) and 0 <= pos_final[1] < len(tablero)):
+        return False  # Posición final fuera del tablero
+
+    ficha = tablero[pos_inicial[1]][pos_inicial[0]]
+    
+    if not isinstance(ficha, piece.Piece):
+        return False  # No hay una ficha en la posición inicial
+    
+    if ficha.congelada:
+        return False  # La ficha está congelada
+    
+    posiciones_disponibles = ficha.ObtenerPosicionesDisponibles(tablero)
+    return pos_final in posiciones_disponibles
+
+
+def mover_ficha(tablero, pos_inicial, pos_final):
+    copia = ObtenerCopiaTablero(tablero)
+    if validar_movimiento(copia, pos_inicial, pos_final):
+        ficha = copia[pos_inicial[1]][pos_inicial[0]]
+        # Actualizar tablero y posición de la ficha
+        copia[pos_inicial[1]][pos_inicial[0]] = " "
+        ficha.posX, ficha.posY = pos_final
+        copia[pos_final[1]][pos_final[0]] = ficha
+
+        trampas(copia)
+        Congelados(copia)
     return copia
+
 
 def empujar_ficha(tablero, pos_ficha, pos_enemigo, pos_resultado):
-    # Realiza una copia del tablero
     copia = ObtenerCopiaTablero(tablero)
-    
-    
-    ficha = copia[pos_ficha[1]][pos_ficha[0]] 
-    
-    if isinstance(ficha, piece.Piece) and ficha.congelada==False: 
-       
+    ficha = copia[pos_ficha[1]][pos_ficha[0]]
+
+    if isinstance(ficha, piece.Piece) and not ficha.congelada:
         lista_enemigos = ficha.ObtenerEnemigos(copia)
-        
         if pos_enemigo in lista_enemigos:
-            if pos_resultado in copia [pos_enemigo[1]] [pos_enemigo[0]].ObtenerPosicionesDisponibles(copia):
-                copia = ficha.Empujar(copia,copia[pos_enemigo[1]] [pos_enemigo[0]], pos_resultado)
-    trampas(copia)
-    Congelados(copia)
+            enemigo = copia[pos_enemigo[1]][pos_enemigo[0]]
+            if pos_resultado in enemigo.ObtenerPosicionesDisponibles(copia):
+                copia = ficha.Empujar(copia, enemigo, pos_resultado)
+                trampas(copia)
+                Congelados(copia)
     return copia
 
-def halar_ficha(tablero, pos_ficha, pos_enemigo, pos_resultado):
 
+def halar_ficha(tablero, pos_ficha, pos_enemigo, pos_resultado):
     copia = ObtenerCopiaTablero(tablero)
-    
-    
-    ficha = copia[pos_ficha[1]][pos_ficha[0]] 
-    
-    if isinstance(ficha, piece.Piece)and ficha.congelada==False:  
-       
+    ficha = copia[pos_ficha[1]][pos_ficha[0]]
+
+    if isinstance(ficha, piece.Piece) and not ficha.congelada:
         lista_enemigos = ficha.ObtenerEnemigos(copia)
-        
         if pos_enemigo in lista_enemigos:
+            enemigo = copia[pos_enemigo[1]][pos_enemigo[0]]
             if pos_resultado in ficha.ObtenerPosicionesDisponibles(copia):
-                copia = ficha.Halar(copia,copia[pos_enemigo[1]] [pos_enemigo[0]], pos_resultado)
-    trampas(copia)
-    Congelados(copia)
+                copia = ficha.Halar(copia, enemigo, pos_resultado)
+                trampas(copia)
+                Congelados(copia)
     return copia
