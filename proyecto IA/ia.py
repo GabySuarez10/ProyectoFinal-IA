@@ -24,6 +24,7 @@ def evaluar_tablero(tablero, color_jugador):
 def generar_movimientos(tablero, color_jugador):
     """
     Genera todos los movimientos válidos para un jugador.
+    Ahora solo permite que los conejos se muevan una vez por turno.
     """
     movimientos = []
 
@@ -31,26 +32,22 @@ def generar_movimientos(tablero, color_jugador):
         for x in range(len(tablero[y])):
             casilla = tablero[y][x]
             if isinstance(casilla, piece.Piece) and casilla.color == color_jugador:
+                if casilla.animal == "conejo":
+                    continue  # No permite que el conejo se mueva si ya ha sido movido
+
                 posiciones_disponibles = casilla.ObtenerPosicionesDisponibles(tablero)
                 # Filtrar movimientos inválidos según las reglas
                 posiciones_validas = [
                     pos for pos in posiciones_disponibles if validar_movimiento(tablero, (x, y), pos)
-
                 ]
                 for pos_final in posiciones_validas:
                     movimientos.append(((x, y), pos_final))
 
     return movimientos
 
-
 def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
     """
-    Algoritmo Minimax con poda alfa-beta.
-    - tablero: estado actual del tablero.
-    - profundidad: nivel de profundidad en el árbol de decisión.
-    - alfa, beta: valores para la poda alfa-beta.
-    - maximizando: True si es el turno del jugador maximizador, False para el minimizador.
-    - color_jugador: color del jugador actual (dorado o plateado).
+    Algoritmo Minimax con poda alfa-beta, ahora con la restricción para los conejos.
     """
     if profundidad == 0:
         return evaluar_tablero(tablero, color_jugador), None
@@ -65,6 +62,7 @@ def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
         for movimiento in movimientos:
             pos_inicial, pos_final = movimiento
             nuevo_tablero = reglas.mover_ficha(tablero, pos_inicial, pos_final)
+                
             evaluacion, _ = minimax(nuevo_tablero, profundidad - 1, alfa, beta, False, color_jugador)
 
             if evaluacion > max_eval:
@@ -84,6 +82,8 @@ def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
         for movimiento in movimientos:
             pos_inicial, pos_final = movimiento
             nuevo_tablero = reglas.mover_ficha(tablero, pos_inicial, pos_final)
+
+
             evaluacion, _ = minimax(nuevo_tablero, profundidad - 1, alfa, beta, True, color_jugador)
 
             if evaluacion < min_eval:
@@ -95,6 +95,7 @@ def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
                 break
 
         return min_eval, mejor_movimiento
+
 
 
 def decidir_mejor_movimiento(tablero, profundidad, color_jugador):

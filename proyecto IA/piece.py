@@ -72,15 +72,13 @@ class Conejo(Piece):
         # Llamar al constructor de la clase base (Piece) con los parámetros adecuados
         super().__init__("conejo", id, color, posX, posY)
     
-    def ObtenerPosicionesDisponibles(self, tablero):
+    def PosicionesDisponibles(self, tablero):
         """
         Limita los movimientos del conejo a un paso en las direcciones cardinales.
         """
         posiciones_disponibles = []
         movimientos_posibles = [
             (self.posX, self.posY - 1),  # Arriba
-            (self.posX - 1, self.posY),  # Izquierda
-            (self.posX + 1, self.posY)   # Derecha
         ]
 
         for pos in movimientos_posibles:
@@ -93,3 +91,28 @@ class Conejo(Piece):
 
         return posiciones_disponibles
 
+class Conejo_P(Piece):
+    def __init__(self, id, color, posX, posY):
+        # Llamar al constructor de la clase base (Piece) con los parámetros adecuados
+        super().__init__("conejo", id, color, posX, posY)
+    
+    def PosicionesDisponibles(self, tablero):
+        """
+        Limita los movimientos del conejo a un paso en las direcciones cardinales.
+        """
+        posiciones_disponibles = []
+        movimientos_posibles = [
+            (self.posX, self.posY + 1),  # Abajo 
+        ]
+
+        for pos in movimientos_posibles:
+            x, y = pos
+            # Verificar si la posición está dentro de los límites del tablero
+            if 0 <= x < len(tablero[0]) and 0 <= y < len(tablero):
+                # Verificar si la posición está vacía
+                if tablero[y][x] == " ":
+                    posiciones_disponibles.append(pos)
+
+        return posiciones_disponibles
+    
+    
