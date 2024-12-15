@@ -3,6 +3,7 @@ import sys
 import piece
 import reglas
 import os  
+import ia  # Importa el archivo ia.py
 
 os.chdir(os.path.dirname(__file__))
 
@@ -19,6 +20,7 @@ pos1 = None
 pos2 = None
 pos3 = None
 
+# Función para obtener la posición de un clic en el tablero
 def obtener_posicion(pos1, pos2, pos3=[0,0]):
     pos1X = ""
     pos1Y = ""
@@ -27,7 +29,7 @@ def obtener_posicion(pos1, pos2, pos3=[0,0]):
     pos3X = ""
     pos3Y = ""
   
-   
+   #convierte coordenadas del click a posicion en el tablero
     pos1X = int(pos1[0]/63)
     pos1Y = int(pos1[1]/63)
     print(f"Primer clic en: {pos1}")
@@ -39,6 +41,8 @@ def obtener_posicion(pos1, pos2, pos3=[0,0]):
     pos3X = int(pos3[0]/63)
     pos3Y = int(pos3[1]/63)
     print(f"Primer clic en: {pos3}")
+    
+    #limpia las posiciones
     pos1 = None
     pos2 = None
     pos3 = None
@@ -65,7 +69,6 @@ tablero1 = [
 def ObtenerCopiaTablero(estado):
     return [row[:] for row in estado]
 
-
 # Colocar piezas en el tablero fichas plateadas
 tablero2 = ObtenerCopiaTablero(tablero1)
 for y in range(1):
@@ -79,10 +82,8 @@ tablero2[1][2] = piece.Piece("caballo", 4, "plateado", 2, 1)
 tablero2[1][5] = piece.Piece("caballo", 4, "plateado", 5, 1)
 tablero2[1][3] = piece.Piece("camello", 5, "plateado", 3, 1) 
 tablero2[1][4] = piece.Piece("elefante", 6, "plateado", 4, 1) 
-      
 
-
-# Cargar imágenes plateado
+# Cargar imágenes de las piezas plateadas
 imagenCone = pygame.image.load('iconos/conejo_plateado.png').convert_alpha()
 imagenCone = pygame.transform.scale(imagenCone, (TAM_CELDA, TAM_CELDA))
 imagenElef = pygame.image.load('iconos\elefante_plateado.png').convert_alpha()
@@ -95,12 +96,8 @@ imagengato = pygame.image.load('iconos\gato_plateado.png').convert_alpha()
 imagengato = pygame.transform.scale(imagengato, (TAM_CELDA, TAM_CELDA))
 imagenCabal = pygame.image.load('iconos\caballo_plateado.png').convert_alpha()
 imagenCabal = pygame.transform.scale(imagenCabal, (TAM_CELDA, TAM_CELDA))
-####################################
 
-
-
-#Colocar piezas en el tablero fichas doradas
-
+# Colocar piezas en el tablero fichas doradas
 y = 7
 for x in range(len(tablero2[y])):
     tablero2[y][x] = piece.Piece("conejo", 1, "dorado", x, y)
@@ -113,8 +110,7 @@ tablero2[6][5] = piece.Piece("caballo", 4, "dorado", 5, 6)
 tablero2[6][3] = piece.Piece("camello", 5, "dorado", 3, 6) 
 tablero2[6][4] = piece.Piece("elefante", 6, "dorado", 4, 6)  
 
-
-# Cargar imágenes dorado
+# Cargar imágenes de las piezas doradas
 imagenConeD = pygame.image.load('iconos/conejo_dorado.png').convert_alpha()
 imagenConeD = pygame.transform.scale(imagenConeD, (TAM_CELDA, TAM_CELDA))
 imagenElefD = pygame.image.load('iconos\elefante_dorado.png').convert_alpha()
@@ -128,8 +124,7 @@ imagengatoD = pygame.transform.scale(imagengatoD, (TAM_CELDA, TAM_CELDA))
 imagenCabalD = pygame.image.load('iconos\caballo_dorado.png').convert_alpha()
 imagenCabalD = pygame.transform.scale(imagenCabalD, (TAM_CELDA, TAM_CELDA))
 
-
-
+# Diccionario con imágenes de las piezas
 imagenes_animales = {
     "plateado": {
         "conejo": imagenCone,
@@ -148,6 +143,7 @@ imagenes_animales = {
         "caballo": imagenCabalD
     }
 }
+
 # Función para pintar el tablero
 def Pintar(tablero):
     for y in range(len(tablero)):
@@ -173,18 +169,23 @@ def Pintar(tablero):
                 pygame.draw.rect(pantalla, VINOTINTO, (x * TAM_CELDA, y * TAM_CELDA, TAM_CELDA, TAM_CELDA))
                 pygame.draw.rect(pantalla, VINOTINTO, (x * TAM_CELDA, y * TAM_CELDA, TAM_CELDA, TAM_CELDA), 1)
 
-    pygame.display.flip()
+    pygame.display.flip()   
+
+# Variable para controlar si es el turno del jugador o de la IA
+es_turno_jugador = True
+
 # Bucle principal
-
-
 Pintar(tablero2)
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Botón izquierdo del mouse
+        
+        if es_turno_jugador:
+            # Turno del jugador
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Botón izquierdo del mouse
                     if pos1 is None:  # Primer clic
                         pos1 = event.pos
                     elif pos2 is None:  # Segundo clic
@@ -193,34 +194,18 @@ while True:
                         print(f"Posiciones capturadas: {posicion1}, {posicion2}") 
                         tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
                         Pintar(tablero2)
-                        pos1= None
-                        pos2= None
-        elif event.type == pygame.KEYDOWN:
-            if pygame.key.name (event.key) == "1":
-                if pos1 is None:  # Primer clic
-                        pos1 = pygame.mouse.get_pos()
-                elif pos2 is None:  # Segundo clic
-                    pos2 = pygame.mouse.get_pos()
-                elif pos3 is None:
-                    pos3 = pygame.mouse.get_pos()
-                    posicion1, posicion2, posicion3 = obtener_posicion(pos1, pos2, pos3)
-                    print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
-                    tablero2 = reglas.empujar_ficha(tablero2, posicion1, posicion2, posicion3)
-                    Pintar(tablero2)
-                    pos1= None
-                    pos2= None
-                    pos3= None
-            if pygame.key.name (event.key) == "2":
-                if pos1 is None:  # Primer clic
-                        pos1 = pygame.mouse.get_pos()
-                elif pos2 is None:  # Segundo clic
-                    pos2 = pygame.mouse.get_pos()
-                elif pos3 is None:
-                    pos3 = pygame.mouse.get_pos()
-                    posicion1, posicion2, posicion3 = obtener_posicion(pos1, pos2, pos3)
-                    print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
-                    tablero2 = reglas.halar_ficha(tablero2, posicion1, posicion2, posicion3)
-                    Pintar(tablero2)
-                    pos1= None
-                    pos2= None
-                    pos3= None
+                        pos1 = None
+                        pos2 = None
+                        es_turno_jugador = False  # Cambia el turno a la IA
+        else:
+            # Turno de la IA
+            print("Es el turno de la IA...")
+            mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 3, "plateado")  # Asumiendo que la IA juega con el color plateado
+            if mejor_movimiento:
+                pos_inicial, pos_final = mejor_movimiento
+                tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
+                Pintar(tablero2)
+                es_turno_jugador = True  # Cambia el turno al jugador
+                print(f"Movimiento de la IA: {pos_inicial} -> {pos_final}")
+
+    reloj.tick(FPS)
