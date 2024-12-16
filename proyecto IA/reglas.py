@@ -1,4 +1,26 @@
 import piece
+import pygame
+
+def verificar_victoria(tablero, pantalla):
+    # Revisar si algún conejo plateado está en la fila 7 (lado inicial de los dorados)
+    for x in range(len(tablero[7])):  # Recorremos la fila 7
+        if isinstance(tablero[7][x], piece.Piece) and tablero[7][x].animal == "conejo" and tablero[7][x].color == "plateado":
+            mostrar_mensaje(pantalla, "Haz perdido")
+            return True  # Victoria para el jugador plateado
+    # Revisar si algún conejo dorado está en la fila 0 (lado inicial de los plateados)
+    for x in range(len(tablero[0])):  # Recorremos la fila 0
+        if isinstance(tablero[0][x], piece.Piece) and tablero[0][x].animal == "conejo" and tablero[0][x].color == "dorado":
+            mostrar_mensaje(pantalla, "¡El jugador dorado gana!")
+            return True  # Victoria para el jugador dorado
+    return False  # No hay victoria aún
+
+def mostrar_mensaje(pantalla, mensaje):
+    fuente = pygame.font.Font(None, 50)  # Crear una fuente
+    texto = fuente.render(mensaje, True, (255, 255, 0))  # Crear el texto
+    pantalla.fill((0, 0, 0))  # Llenar la pantalla con negro
+    pantalla.blit(texto, (pantalla.get_width() // 2 - texto.get_width() // 2, pantalla.get_height() // 2 - texto.get_height() // 2))
+    pygame.display.flip()  # Actualizar la pantalla
+    pygame.time.delay(3000)
 
 def trampas(tablero): 
     # La sintaxis es (X,Y)
