@@ -53,8 +53,9 @@ def Congelados(tablero):
                         tablero [enemigo[1] ][enemigo[0]].congelada = True
                         
 def ObtenerCopiaTablero(estado):
-    # Devuelve una copia profunda del tablero
-    return [row[:] for row in estado]
+    import copy
+    return copy.deepcopy(estado)  # Asegura una copia profunda
+
 
 def validar_movimiento(tablero, pos_inicial, pos_final):
     """
@@ -79,6 +80,7 @@ def validar_movimiento(tablero, pos_inicial, pos_final):
 
 
 def mover_ficha(tablero, pos_inicial, pos_final):
+    print(f"Intentando mover pieza de {pos_inicial} a {pos_final}")
     copia = ObtenerCopiaTablero(tablero)
     if validar_movimiento(copia, pos_inicial, pos_final):
         ficha = copia[pos_inicial[1]][pos_inicial[0]]
@@ -89,7 +91,9 @@ def mover_ficha(tablero, pos_inicial, pos_final):
 
         trampas(copia)
         Congelados(copia)
-    return copia
+        return copia  # Devuelve el tablero actualizado
+    return tablero  # Si no es válido, devuelve el tablero original
+
 
 
 def empujar_ficha(tablero, pos_ficha, pos_enemigo, pos_resultado):

@@ -224,6 +224,9 @@ while True:
                             # Si la pieza no es un conejo, se puede mover como siempre
                             tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
                             Pintar(tablero2)
+                            print("\n")
+                            print("tablero despues del movimiento del jugador")
+                            imprimir_tablero(tablero2)
                             movimientos_restantes -= 1
                         
                         pos1 = None
@@ -262,9 +265,10 @@ while True:
                         
                     # Si la pieza no es un conejo o el conejo ya se movió, realizar el movimiento
                     tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
-                    print("\n")
-                    imprimir_tablero(tablero2)
                     Pintar(tablero2)
+                    print("\n")
+                    print("tablero despues del movimiento de la IA")
+                    imprimir_tablero(tablero2)
 
             es_turno_jugador = True
             mensaje_mostrado = False  # Restablecer para el próximo turno del jugador
