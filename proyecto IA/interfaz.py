@@ -144,6 +144,11 @@ imagenes_animales = {
     }
 }
 
+
+def imprimir_tablero(tablero):
+    for row in tablero:
+        print(" ".join(str(cell) if cell != " " else "." for cell in row))
+
 # Función para pintar el tablero
 def Pintar(tablero):
     for y in range(len(tablero)):
@@ -176,6 +181,7 @@ es_turno_jugador = True
 
 # Bucle principal
 Pintar(tablero2)
+imprimir_tablero(tablero2)
 movimientos_restantes = 4  # Máximo de movimientos por turno
 movimiento_conejo_realizado = False  # Variable para controlar el movimiento de los conejos
 
@@ -256,6 +262,8 @@ while True:
                         
                     # Si la pieza no es un conejo o el conejo ya se movió, realizar el movimiento
                     tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
+                    print("\n")
+                    imprimir_tablero(tablero2)
                     Pintar(tablero2)
 
             es_turno_jugador = True
