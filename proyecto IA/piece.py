@@ -94,3 +94,14 @@ class Piece:
             tablero[enemigo.posY][enemigo.posX] = enemigo
 
         return tablero
+    
+    def __str__(self):
+            return f"{self.color[0].upper()}{self.animal[0].upper()}"
+
+class Conejo_P(Piece):
+    def __init__(self, peso, color, posX, posY):
+        super().__init__("conejo", peso, color, posX, posY)
+
+class Conejo(Piece):
+    def __init__(self, peso, color, posX, posY):
+        super().__init__("conejo", peso, color, posX, posY)
