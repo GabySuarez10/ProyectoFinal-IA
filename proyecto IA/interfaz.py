@@ -9,15 +9,37 @@ os.chdir(os.path.dirname(__file__))
 
 # Configuración general
 ANCHO = 512
-ALTO = 600
+ALTO = 512
 TAM_CELDA = 64
 FPS = 5
 NEGRO = (0, 0, 0)
 VINOTINTO = (128, 0, 32)
 CAFE = (210, 180, 140)
+AMARILLO = (255, 255, 0)
 pos1 = None
 pos2 = None
 pos3 = None
+
+def verificar_victoria(tablero, pantalla):
+    # Revisar si algún conejo plateado está en la fila 7 (lado inicial de los dorados)
+    for x in range(len(tablero[7])):  # Recorremos la fila 7
+        if isinstance(tablero[7][x], piece.Piece) and tablero[7][x].animal == "conejo" and tablero[7][x].color == "plateado":
+            mostrar_mensaje(pantalla, "Haz perdido")
+            return True  # Victoria para el jugador plateado
+    # Revisar si algún conejo dorado está en la fila 0 (lado inicial de los plateados)
+    for x in range(len(tablero[0])):  # Recorremos la fila 0
+        if isinstance(tablero[0][x], piece.Piece) and tablero[0][x].animal == "conejo" and tablero[0][x].color == "dorado":
+            mostrar_mensaje(pantalla, "¡El jugador dorado gana!")
+            return True  # Victoria para el jugador dorado
+    return False  # No hay victoria aún
+
+def mostrar_mensaje(pantalla, mensaje):
+    fuente = pygame.font.Font(None, 50)  # Crear una fuente
+    texto = fuente.render(mensaje, True, (255, 255, 0))  # Crear el texto
+    pantalla.fill((0, 0, 0))  # Llenar la pantalla con negro
+    pantalla.blit(texto, (pantalla.get_width() // 2 - texto.get_width() // 2, pantalla.get_height() // 2 - texto.get_height() // 2))
+    pygame.display.flip()  # Actualizar la pantalla
+    pygame.time.delay(3000)
 
 def obtener_posicion(pos1, pos2, pos3=[0,0]):
     pos1X = ""
@@ -176,7 +198,6 @@ def Pintar(tablero):
     pygame.display.flip()
 # Bucle principal
 
-
 Pintar(tablero2)
 while True:
     for event in pygame.event.get():
@@ -184,21 +205,25 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Botón izquierdo del mouse
-                    if pos1 is None:  # Primer clic
-                        pos1 = event.pos
-                    elif pos2 is None:  # Segundo clic
-                        pos2 = event.pos
-                        posicion1, posicion2, tempo = obtener_posicion(pos1, pos2)
-                        print(f"Posiciones capturadas: {posicion1}, {posicion2}") 
-                        tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
-                        Pintar(tablero2)
-                        pos1= None
-                        pos2= None
-        elif event.type == pygame.KEYDOWN:
-            if pygame.key.name (event.key) == "1":
+            if event.button == 1:  # Botón izquierdo del mouse
                 if pos1 is None:  # Primer clic
-                        pos1 = pygame.mouse.get_pos()
+                    pos1 = event.pos
+                elif pos2 is None:  # Segundo clic
+                    pos2 = event.pos
+                    posicion1, posicion2, tempo = obtener_posicion(pos1, pos2)
+                    print(f"Posiciones capturadas: {posicion1}, {posicion2}") 
+                    tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
+                    Pintar(tablero2)
+                    pos1 = None
+                    pos2 = None
+                    # Verificar victoria después de mover la ficha
+                    if verificar_victoria(tablero2, pantalla):
+                        pygame.quit()
+                        sys.exit()  # Salir del juego si alguien gana
+        elif event.type == pygame.KEYDOWN:
+            if pygame.key.name(event.key) == "1":
+                if pos1 is None:  # Primer clic
+                    pos1 = pygame.mouse.get_pos()
                 elif pos2 is None:  # Segundo clic
                     pos2 = pygame.mouse.get_pos()
                 elif pos3 is None:
@@ -207,12 +232,12 @@ while True:
                     print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
                     tablero2 = reglas.empujar_ficha(tablero2, posicion1, posicion2, posicion3)
                     Pintar(tablero2)
-                    pos1= None
-                    pos2= None
-                    pos3= None
-            if pygame.key.name (event.key) == "2":
+                    pos1 = None
+                    pos2 = None
+                    pos3 = None
+            if pygame.key.name(event.key) == "2":
                 if pos1 is None:  # Primer clic
-                        pos1 = pygame.mouse.get_pos()
+                    pos1 = pygame.mouse.get_pos()
                 elif pos2 is None:  # Segundo clic
                     pos2 = pygame.mouse.get_pos()
                 elif pos3 is None:
@@ -221,6 +246,7 @@ while True:
                     print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
                     tablero2 = reglas.halar_ficha(tablero2, posicion1, posicion2, posicion3)
                     Pintar(tablero2)
-                    pos1= None
-                    pos2= None
-                    pos3= None
+                    pos1 = None
+                    pos2 = None
+                    pos3 = None
+                    
