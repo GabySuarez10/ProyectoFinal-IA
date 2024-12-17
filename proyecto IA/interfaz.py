@@ -218,7 +218,7 @@ while True:
                             tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
                             Pintar(tablero2)
                             # Marcar que el conejo se ha movido
-                            movimiento_conejo_realizado = True
+                           # movimiento_conejo_realizado = True
                             # Reducir movimientos restantes
                             movimientos_restantes -= 1
                         elif isinstance(pieza, piece.Piece) and pieza.animal != "conejo":
@@ -226,6 +226,7 @@ while True:
                             tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
                             Pintar(tablero2)
                             movimientos_restantes -= 1
+                            
                         
                         pos1 = None
                         pos2 = None
@@ -239,6 +240,37 @@ while True:
                             movimiento_conejo_realizado = False  # Restablecer para el siguiente turno
 
             elif event.type == pygame.KEYDOWN:
+                if pygame.key.name(event.key) == "1":
+                    if pos1 is None:  # Primer clic
+                        pos1 = pygame.mouse.get_pos()
+                    elif pos2 is None:  # Segundo clic
+                        pos2 = pygame.mouse.get_pos()
+                    elif pos3 is None:
+                        pos3 = pygame.mouse.get_pos()
+                        posicion1, posicion2, posicion3 = obtener_posicion(pos1, pos2, pos3)
+                        print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
+                        tablero2 = reglas.empujar_ficha(tablero2, posicion1, posicion2, posicion3)
+                        Pintar(tablero2)
+                        pos1 = None
+                        pos2 = None
+                        pos3 = None
+                        movimientos_restantes -= 2
+                if pygame.key.name(event.key) == "2":
+                    if pos1 is None:  # Primer clic
+                        pos1 = pygame.mouse.get_pos()
+                    elif pos2 is None:  # Segundo clic
+                        pos2 = pygame.mouse.get_pos()
+                    elif pos3 is None:
+                        pos3 = pygame.mouse.get_pos()
+                        posicion1, posicion2, posicion3 = obtener_posicion(pos1, pos2, pos3)
+                        print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}") 
+                        tablero2 = reglas.halar_ficha(tablero2, posicion1, posicion2, posicion3)
+                        Pintar(tablero2)
+                        pos1 = None
+                        pos2 = None
+                        pos3 = None
+                        movimientos_restantes -= 2
+                    
                 if event.key == pygame.K_RETURN:  # Tecla Enter para finalizar el turno manualmente
                     print("Turno finalizado manualmente.")
                     movimientos_restantes = 4
