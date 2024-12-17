@@ -10,7 +10,7 @@ os.chdir(os.path.dirname(__file__))
 
 # Configuración general
 ANCHO = 512
-ALTO = 600
+ALTO = 512
 TAM_CELDA = 64
 FPS = 5
 NEGRO = (0, 0, 0)
@@ -19,6 +19,27 @@ CAFE = (210, 180, 140)
 pos1 = None
 pos2 = None
 pos3 = None
+
+def verificar_victoria(tablero, pantalla):
+    # Revisar si algún conejo plateado está en la fila 7 (lado inicial de los dorados)
+    for x in range(len(tablero[7])):  # Recorremos la fila 7
+        if isinstance(tablero[7][x], piece.Piece) and tablero[7][x].animal == "conejo" and tablero[7][x].color == "plateado":
+            mostrar_mensaje(pantalla, "Haz perdido")
+            return True  # Victoria para el jugador plateado
+    # Revisar si algún conejo dorado está en la fila 0 (lado inicial de los plateados)
+    for x in range(len(tablero[0])):  # Recorremos la fila 0
+        if isinstance(tablero[0][x], piece.Piece) and tablero[0][x].animal == "conejo" and tablero[0][x].color == "dorado":
+            mostrar_mensaje(pantalla, "¡El jugador dorado gana!")
+            return True  # Victoria para el jugador dorado
+    return False  # No hay victoria aún
+
+def mostrar_mensaje(pantalla, mensaje):
+    fuente = pygame.font.Font(None, 50)  # Crear una fuente
+    texto = fuente.render(mensaje, True, (255, 255, 0))  # Crear el texto
+    pantalla.fill((0, 0, 0))  # Llenar la pantalla con negro
+    pantalla.blit(texto, (pantalla.get_width() // 2 - texto.get_width() // 2, pantalla.get_height() // 2 - texto.get_height() // 2))
+    pygame.display.flip()  # Actualizar la pantalla
+    pygame.time.delay(3000)
 
 # Función para obtener la posición de un clic en el tablero
 def obtener_posicion(pos1, pos2, pos3=[0,0]):
@@ -230,6 +251,9 @@ while True:
                         
                         pos1 = None
                         pos2 = None
+                         # Verificar victoria después de mover la ficha
+                        if verificar_victoria(tablero2, pantalla):
+                            sys.exit()  # Salir del juego si alguien gana
 
                         # Verificar si el jugador ha agotado sus movimientos
                         if movimientos_restantes == 0:
