@@ -208,7 +208,7 @@ while True:
                     elif pos2 is None and pos1 is not None:  # Segundo clic
                         pos2 = event.pos
                         posicion1, posicion2, _ = obtener_posicion(pos1, pos2)
-
+                        print(f"Posiciones capturadas: {posicion1}, {posicion2}")
                         pieza = tablero2[posicion1[1]][posicion1[0]]
 
                         # Verifica si la pieza es un conejo y si ya se movió
