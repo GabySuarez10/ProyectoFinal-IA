@@ -100,8 +100,13 @@ def validar_movimiento(tablero, pos_inicial, pos_final):
 def mover_ficha(tablero, pos_inicial, pos_final):
     print(f"Intentando mover pieza de {pos_inicial} a {pos_final}")
     copia = ObtenerCopiaTablero(tablero)
+    ficha = copia[pos_inicial[1]][pos_inicial[0]]
+
+    if not ficha.viva or ficha.congelada:
+        print("Movimiento inválido: La ficha está congelada o no está viva")
+        return tablero
+
     if validar_movimiento(copia, pos_inicial, pos_final):
-        ficha = copia[pos_inicial[1]][pos_inicial[0]]
         print(f"Movimiento válido: {ficha} se mueve a {pos_final}")
         copia[pos_inicial[1]][pos_inicial[0]] = " "
         ficha.posX, ficha.posY = pos_final
@@ -110,6 +115,14 @@ def mover_ficha(tablero, pos_inicial, pos_final):
         trampas(copia)
         Congelados(copia)
         return copia
+
+    print("Movimiento inválido")
+    return tablero  # Devuelve el tablero original si el movimiento no es válido
+
+    if not validar_movimiento(copia, pos_inicial, pos_final):
+        print("Movimiento rechazado: No es válido.")
+        return tablero
+
     print("Movimiento inválido")
     return tablero
 
@@ -123,11 +136,18 @@ def empujar_ficha(tablero, pos_ficha, pos_enemigo, pos_resultado):
         lista_enemigos = ficha.ObtenerEnemigos(copia)
         if pos_enemigo in lista_enemigos:
             enemigo = copia[pos_enemigo[1]][pos_enemigo[0]]
+            
+            # Verificar que la ficha no sea plateada para evitar movimientos arbitrarios
+            if ficha.color == 'plateado' and not ficha.animal == 'conejo':
+                print("No se puede empujar una ficha plateada.")
+                return copia
+
             if pos_resultado in enemigo.ObtenerPosicionesDisponibles(copia):
                 copia = ficha.Empujar(copia, enemigo, pos_resultado)
                 trampas(copia)
                 Congelados(copia)
     return copia
+
 
 
 def halar_ficha(tablero, pos_ficha, pos_enemigo, pos_resultado):
@@ -138,6 +158,12 @@ def halar_ficha(tablero, pos_ficha, pos_enemigo, pos_resultado):
         lista_enemigos = ficha.ObtenerEnemigos(copia)
         if pos_enemigo in lista_enemigos:
             enemigo = copia[pos_enemigo[1]][pos_enemigo[0]]
+
+            # Verificar que la ficha no sea plateada para evitar movimientos arbitrarios
+            if ficha.color == 'plateado' and not ficha.animal == 'conejo':
+                print("No se puede halar una ficha plateada.")
+                return copia
+
             if pos_resultado in ficha.ObtenerPosicionesDisponibles(copia):
                 copia = ficha.Halar(copia, enemigo, pos_resultado)
                 trampas(copia)

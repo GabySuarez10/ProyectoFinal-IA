@@ -59,6 +59,25 @@ class Piece:
 
         return listaEnemigosDisponibles
 
+    def Empujar(self, tablero, enemigo, pos_resultado):
+        
+        if tablero[pos_resultado[1]][pos_resultado[0]] == " ":
+            # Actualizar posición enemiga
+            tablero[pos_resultado[1]][pos_resultado[0]] = enemigo
+            tablero[enemigo.posY][enemigo.posX] = " "
+            enemigo.posX, enemigo.posY = pos_resultado
+
+        return tablero
+
+    
+    def Halar(self, tablero, enemigo, pos_resultado):
+        if tablero[pos_resultado[1]][pos_resultado[0]] == " ":
+            tablero[enemigo.posY][enemigo.posX] = " "  # Vacía la posición del enemigo
+            tablero[self.posY][self.posX] = " "  # Vacía la posición de la pieza que hala
+            tablero[pos_resultado[1]][pos_resultado[0]] = enemigo  # Coloca el enemigo en la posición de destino
+            enemigo.posX, enemigo.posY = pos_resultado
+        return tablero
+
 
 class Conejo_P(Piece):
     def __init__(self, peso, color, posX, posY):
