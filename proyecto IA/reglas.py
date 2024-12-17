@@ -48,31 +48,27 @@ def trampas(tablero):
 
 
 def Congelados(tablero):
-    #descongelamos todas las fichas
-    for i in range (8): 
-        for j in range (8):
+    for i in range(8): 
+        for j in range(8):
             if isinstance(tablero[i][j], piece.Piece):
-                tablero [i][j].congelada = False
-    #congelamos las fichas que tienen un enemigo que pesa mas que ellas y no tienen compañeros a los lados
-    for i in range (8): 
-        for j in range (8):
-            if isinstance(tablero[i][j], piece.Piece):
-                listaEnemigos = tablero [i][j].ObtenerEnemigos(tablero)
+                listaEnemigos = tablero[i][j].ObtenerEnemigos(tablero)
                 for enemigo in listaEnemigos:
                     segura = False
-                #verificamos si tiene amigos que lo salven
-                    listaCardinales = [(enemigo[0], enemigo[1] -1),
-                                       (enemigo[0]-1,enemigo[1]),
-                                       (enemigo[0],enemigo[1]+1),
-                                       (enemigo[0]+1,enemigo[1])]
+                    listaCardinales = [
+                        (enemigo[0], enemigo[1] - 1),
+                        (enemigo[0] - 1, enemigo[1]),
+                        (enemigo[0], enemigo[1] + 1),
+                        (enemigo[0] + 1, enemigo[1])
+                    ]
                     for posicion in listaCardinales:
                         try:
-                            if tablero [enemigo[1] ][enemigo[0]].color == tablero [posicion[1] ][posicion[0]].color:
+                            if tablero[enemigo[1]][enemigo[0]].color == tablero[posicion[1]][posicion[0]].color:
                                 segura = True
                         except:
                             continue
                     if not segura:
-                        tablero [enemigo[1] ][enemigo[0]].congelada = True
+                        tablero[enemigo[1]][enemigo[0]].congelada = True
+
                         
 def ObtenerCopiaTablero(estado):
     import copy
@@ -106,15 +102,16 @@ def mover_ficha(tablero, pos_inicial, pos_final):
     copia = ObtenerCopiaTablero(tablero)
     if validar_movimiento(copia, pos_inicial, pos_final):
         ficha = copia[pos_inicial[1]][pos_inicial[0]]
-        # Actualizar tablero y posición de la ficha
+        print(f"Movimiento válido: {ficha} se mueve a {pos_final}")
         copia[pos_inicial[1]][pos_inicial[0]] = " "
         ficha.posX, ficha.posY = pos_final
         copia[pos_final[1]][pos_final[0]] = ficha
 
         trampas(copia)
         Congelados(copia)
-        return copia  # Devuelve el tablero actualizado
-    return tablero  # Si no es válido, devuelve el tablero original
+        return copia
+    print("Movimiento inválido")
+    return tablero
 
 
 

@@ -244,23 +244,25 @@ def manejar_turno_ia():
     global es_turno_jugador, mensaje_mostrado, movimiento_conejo_realizado
 
     print("Es el turno de la IA...")
-    for _ in range(4):  # La IA tiene hasta 4 movimientos
-        mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 5, "plateado")
+    movimientos_realizados = 0  # Contador para los movimientos
 
+    while movimientos_realizados < 4:  # La IA tiene hasta 4 movimientos
+        mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 3, "plateado")  # Profundidad 3 para rendimiento
         if mejor_movimiento:
             pos_inicial, pos_final = mejor_movimiento
-            pieza_inicial = tablero2[pos_inicial[1]][pos_inicial[0]]
+            print(f"IA mueve desde {pos_inicial} hasta {pos_final}")
             
-            # Movimiento del conejo
-            if isinstance(pieza_inicial, piece.Piece) and pieza_inicial.animal == "conejo" and not movimiento_conejo_realizado:
-                continue  # Saltar el movimiento del conejo si aún no se ha movido
-            
-            tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
-            Pintar(tablero2)
-    
+            tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)  # Actualizar tablero
+            Pintar(tablero2)  # Actualizar visualización
+            movimientos_realizados += 1
+        else:
+            print("IA no encontró movimientos válidos.")
+            break
+
     es_turno_jugador = True
     mensaje_mostrado = False
     movimiento_conejo_realizado = False
+
 
 
 def finalizar_turno_jugador():

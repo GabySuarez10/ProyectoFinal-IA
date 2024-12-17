@@ -10,19 +10,18 @@ def evaluar_tablero(tablero, color_jugador):
             if isinstance(casilla, piece.Piece):
                 if casilla.color == color_jugador:
                     puntaje += casilla.peso
-                    # Bonus por posición estratégica (personaliza las reglas)
+                    # Bonus por posición estratégica
                     if casilla.animal == "conejo":
                         puntaje += (7 - casilla.posY) if color_jugador == "dorado" else casilla.posY
+                    # Penalizar posiciones en trampas
+                    if casilla.esta_en_trampa(tablero):
+                        puntaje -= 5
                 else:
                     puntaje -= casilla.peso
     return puntaje
 
 
 def generar_movimientos(tablero, color_jugador):
-    """
-    Genera todos los movimientos válidos para un jugador.
-    Ahora solo permite que los conejos se muevan una vez por turno.
-    """
     movimientos = []
 
     for y in range(len(tablero)):
@@ -30,19 +29,26 @@ def generar_movimientos(tablero, color_jugador):
             casilla = tablero[y][x]
             if isinstance(casilla, piece.Piece) and casilla.color == color_jugador:
                 posiciones_disponibles = casilla.ObtenerPosicionesDisponibles(tablero)
-                # Filtrar movimientos inválidos según las reglas
                 posiciones_validas = [
                     pos for pos in posiciones_disponibles if validar_movimiento(tablero, (x, y), pos)
                 ]
                 for pos_final in posiciones_validas:
+                    # Restricción para conejos (solo mover hacia adelante)
+                    if casilla.animal == "conejo" and not movimiento_valido_conejo((x, y), pos_final, color_jugador):
+                        continue
                     movimientos.append(((x, y), pos_final))
 
     return movimientos
 
+def movimiento_valido_conejo(pos_inicial, pos_final, color_jugador):
+    x1, y1 = pos_inicial
+    x2, y2 = pos_final
+    return (y2 < y1) if color_jugador == "dorado" else (y2 > y1)
+
+
+import copy
+
 def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
-    """
-    Algoritmo Minimax con poda alfa-beta, ahora con la restricción para los conejos.
-    """
     if profundidad == 0:
         return evaluar_tablero(tablero, color_jugador), None
 
@@ -55,8 +61,9 @@ def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
 
         for movimiento in movimientos:
             pos_inicial, pos_final = movimiento
-            nuevo_tablero = reglas.mover_ficha(tablero, pos_inicial, pos_final)
-                
+            nuevo_tablero = copy.deepcopy(tablero)
+            reglas.mover_ficha(nuevo_tablero, pos_inicial, pos_final)
+
             evaluacion, _ = minimax(nuevo_tablero, profundidad - 1, alfa, beta, False, color_jugador)
 
             if evaluacion > max_eval:
@@ -75,8 +82,8 @@ def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
 
         for movimiento in movimientos:
             pos_inicial, pos_final = movimiento
-            nuevo_tablero = reglas.mover_ficha(tablero, pos_inicial, pos_final)
-
+            nuevo_tablero = copy.deepcopy(tablero)
+            reglas.mover_ficha(nuevo_tablero, pos_inicial, pos_final)
 
             evaluacion, _ = minimax(nuevo_tablero, profundidad - 1, alfa, beta, True, color_jugador)
 
@@ -91,10 +98,8 @@ def minimax(tablero, profundidad, alfa, beta, maximizando, color_jugador):
         return min_eval, mejor_movimiento
 
 
-
 def decidir_mejor_movimiento(tablero, profundidad, color_jugador):
-    """
-    Determina el mejor movimiento para el jugador dado.
-    """
     _, mejor_movimiento = minimax(tablero, profundidad, float('-inf'), float('inf'), True, color_jugador)
+    if mejor_movimiento is None:
+        print("No hay movimientos válidos disponibles.")
     return mejor_movimiento
