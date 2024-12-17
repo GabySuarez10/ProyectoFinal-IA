@@ -4,7 +4,6 @@ import piece
 import reglas
 import os  
 import ia 
-from reglas import verificar_victoria
 
 os.chdir(os.path.dirname(__file__))
 
@@ -68,7 +67,8 @@ tablero1 = [
 
 # Función para obtener una copia del tablero
 def ObtenerCopiaTablero(estado):
-    return [row[:] for row in estado]
+    import copy
+    return copy.deepcopy(estado)  # Asegura una copia profunda
 
 # Colocar piezas en el tablero fichas plateadas
 tablero2 = ObtenerCopiaTablero(tablero1)
@@ -189,118 +189,78 @@ movimiento_conejo_realizado = False  # Variable para controlar el movimiento de 
 # Variable para controlar si se ha mostrado el mensaje del turno del jugador
 mensaje_mostrado = False
 
-def manejar_eventos_jugador():
-    global tablero2
-    global pos1, pos2, pos3, mensaje_mostrado, movimientos_restantes, movimiento_conejo_realizado, es_turno_jugador
-    
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-        # Mostrar el mensaje del turno del jugador
-        if not mensaje_mostrado:
-            print("Es tu turno. Realiza tus movimientos.")  # Mensaje único
-            mensaje_mostrado = True
-        
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Click izquierdo
-            if pos1 is None:  # Primer clic
-                pos1 = event.pos
-            elif pos2 is None:  # Segundo clic
-                pos2 = event.pos
-                posicion1, posicion2, _ = obtener_posicion(pos1, pos2)
+        if es_turno_jugador:
+            # Imprimir el mensaje solo una vez al inicio del turno del jugador
+            if not mensaje_mostrado:
+                print("Es tu turno. Realiza tus movimientos.")  # Mensaje único
+                mensaje_mostrado = True
+            
+            # Turno del jugador
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Botón izquierdo del mouse
+                    if pos1 is None:  # Primer clic, no se ha movido todavía
+                        pos1 = event.pos
+                    elif pos2 is None and pos1 is not None:  # Segundo clic
+                        pos2 = event.pos
+                        posicion1, posicion2, _ = obtener_posicion(pos1, pos2)
+                        print(f"Posiciones capturadas: {posicion1}, {posicion2}")
+                        pieza = tablero2[posicion1[1]][posicion1[0]]
 
-                pieza = tablero2[posicion1[1]][posicion1[0]]
+                        # Verifica si la pieza es un conejo y si ya se movió
+                        if isinstance(pieza, piece.Piece) and pieza.animal == "conejo" and not movimiento_conejo_realizado:
+                            # Si es un conejo y aún no se ha movido, permitir el movimiento
+                            tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
+                            Pintar(tablero2)
+                            # Marcar que el conejo se ha movido
+                            movimiento_conejo_realizado = True
+                            # Reducir movimientos restantes
+                            movimientos_restantes -= 1
+                        elif isinstance(pieza, piece.Piece) and pieza.animal != "conejo":
+                            # Si la pieza no es un conejo, se puede mover como siempre
+                            tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
+                            Pintar(tablero2)
+                            movimientos_restantes -= 1
+                        
+                        pos1 = None
+                        pos2 = None
 
-                # Movimiento del conejo
-                if isinstance(pieza, piece.Piece) and pieza.animal == "conejo" and not movimiento_conejo_realizado:
-                    tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
-                    Pintar(tablero2)
-                    movimiento_conejo_realizado = True
-                    movimientos_restantes -= 1
-                elif isinstance(pieza, piece.Piece) and pieza.animal != "conejo":
-                    tablero2 = reglas.mover_ficha(tablero2, posicion1, posicion2)
-                    Pintar(tablero2)
-                    movimientos_restantes -= 1
+                        # Verificar si el jugador ha agotado sus movimientos
+                        if movimientos_restantes == 0:
+                            print("Movimientos agotados. Turno finalizado.")
+                            movimientos_restantes = 4
+                            es_turno_jugador = False
+                            mensaje_mostrado = False  # Restablecer para el siguiente turno
+                            movimiento_conejo_realizado = False  # Restablecer para el siguiente turno
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  # Tecla Enter para finalizar el turno manualmente
+                    print("Turno finalizado manualmente.")
+                    movimientos_restantes = 4
+                    es_turno_jugador = False
+                    mensaje_mostrado = False  # Restablecer para el siguiente turno
+                    movimiento_conejo_realizado = False  # Restablecer para el siguiente turno
+        else:
+            print("Es el turno de la IA...")
+            
+            for _ in range(4):  # La IA también tiene hasta 4 movimientos
+                mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 5, "plateado")
                 
-                pos1 = None
-                pos2 = None
+                if mejor_movimiento:
+                    pos_inicial, pos_final = mejor_movimiento
+                    pieza_inicial = tablero2[pos_inicial[1]][pos_inicial[0]]  # Obtener la pieza en la posición inicial
+                        
+                    # Si la pieza no es un conejo o el conejo ya se movió, realizar el movimiento
+                    tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
+                    print("\n")
+                    imprimir_tablero(tablero2)
+                    Pintar(tablero2)
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:  # Terminar turno manualmente
-                finalizar_turno_jugador()
-            elif pygame.key.name(event.key) in ["1", "2"]:
-                manejar_teclas(event)
-
-        # Verificar victoria o fin del turno
-        if verificar_victoria(tablero2, pantalla):
-            pygame.quit()
-        if movimientos_restantes == 0:
-            finalizar_turno_jugador()
-
-
-def manejar_turno_ia():
-    global tablero2
-    global es_turno_jugador, mensaje_mostrado, movimiento_conejo_realizado
-
-    print("Es el turno de la IA...")
-    for _ in range(4):  # La IA tiene hasta 4 movimientos
-        mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 5, "plateado")
-
-        if mejor_movimiento:
-            pos_inicial, pos_final = mejor_movimiento
-            pieza_inicial = tablero2[pos_inicial[1]][pos_inicial[0]]
-            
-            # Movimiento del conejo
-            if isinstance(pieza_inicial, piece.Piece) and pieza_inicial.animal == "conejo" and not movimiento_conejo_realizado:
-                continue  # Saltar el movimiento del conejo si aún no se ha movido
-            
-            tablero2 = reglas.mover_ficha(tablero2, pos_inicial, pos_final)
-            Pintar(tablero2)
-    
-    es_turno_jugador = True
-    mensaje_mostrado = False
-    movimiento_conejo_realizado = False
-
-
-def finalizar_turno_jugador():
-    global movimientos_restantes, es_turno_jugador, mensaje_mostrado, movimiento_conejo_realizado
-    print("Turno finalizado.")
-    movimientos_restantes = 4
-    es_turno_jugador = False
-    mensaje_mostrado = False
-    movimiento_conejo_realizado = False
-
-
-def manejar_teclas(event):
-    global pos1, pos2, pos3
-
-    if pygame.key.name(event.key) == "1":
-        # Lógica para empujar ficha
-        manejar_movimiento_especial(event, reglas.empujar_ficha)
-    elif pygame.key.name(event.key) == "2":
-        # Lógica para halar ficha
-        manejar_movimiento_especial(event, reglas.halar_ficha)
-
-
-def manejar_movimiento_especial(event, funcion_movimiento):
-    global pos1, pos2, pos3
-    if pos1 is None:  # Primer clic
-        pos1 = pygame.mouse.get_pos()
-    elif pos2 is None:  # Segundo clic
-        pos2 = pygame.mouse.get_pos()
-    elif pos3 is None:  # Tercer clic
-        pos3 = pygame.mouse.get_pos()
-        posicion1, posicion2, posicion3 = obtener_posicion(pos1, pos2, pos3)
-        print(f"Posiciones capturadas: {posicion1}, {posicion2}, {posicion3}")
-        tablero2 = funcion_movimiento(tablero2, posicion1, posicion2, posicion3)
-        Pintar(tablero2)
-        pos1, pos2, pos3 = None, None, None
-
-
-# Bucle principal
-while True:
-    if es_turno_jugador:
-        manejar_eventos_jugador()
-    else:
-        manejar_turno_ia()
+            es_turno_jugador = True
+            mensaje_mostrado = False  # Restablecer para el próximo turno del jugador
+            movimiento_conejo_realizado = False  # Restablecer después del turno de la IA
