@@ -180,6 +180,7 @@ def Pintar(tablero):
 # Variable para controlar si es el turno del jugador o de la IA
 es_turno_jugador = True
 
+# Bucle principal
 Pintar(tablero2)
 imprimir_tablero(tablero2)
 movimientos_restantes = 4  # Máximo de movimientos por turno
@@ -244,7 +245,7 @@ def manejar_turno_ia():
 
     print("Es el turno de la IA...")
     for _ in range(4):  # La IA tiene hasta 4 movimientos
-        mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 4, "plateado")
+        mejor_movimiento = ia.decidir_mejor_movimiento(tablero2, 5, "plateado")
 
         if mejor_movimiento:
             pos_inicial, pos_final = mejor_movimiento

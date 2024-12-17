@@ -4,20 +4,17 @@ from reglas import validar_movimiento
 
 
 def evaluar_tablero(tablero, color_jugador):
-    """
-    Evalúa el tablero y asigna un puntaje.
-    Un puntaje positivo favorece al jugador actual, negativo al oponente.
-    """
     puntaje = 0
-
     for fila in tablero:
         for casilla in fila:
             if isinstance(casilla, piece.Piece):
                 if casilla.color == color_jugador:
-                    puntaje += casilla.peso  # Suma el peso de las piezas del jugador actual
+                    puntaje += casilla.peso
+                    # Bonus por posición estratégica (personaliza las reglas)
+                    if casilla.animal == "conejo":
+                        puntaje += (7 - casilla.posY) if color_jugador == "dorado" else casilla.posY
                 else:
-                    puntaje -= casilla.peso  # Resta el peso de las piezas del oponente
-
+                    puntaje -= casilla.peso
     return puntaje
 
 
@@ -32,9 +29,6 @@ def generar_movimientos(tablero, color_jugador):
         for x in range(len(tablero[y])):
             casilla = tablero[y][x]
             if isinstance(casilla, piece.Piece) and casilla.color == color_jugador:
-                if casilla.animal == "conejo":
-                    continue  # No permite que el conejo se mueva si ya ha sido movido
-
                 posiciones_disponibles = casilla.ObtenerPosicionesDisponibles(tablero)
                 # Filtrar movimientos inválidos según las reglas
                 posiciones_validas = [
